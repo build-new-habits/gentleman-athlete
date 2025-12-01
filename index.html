@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gentleman Athlete</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- TOP HUD (Heads Up Display) -->
+    <header class="hud">
+        <div class="status-bar">
+            <div class="level-indicator">
+                <span class="badge">LVL <span id="user-level">1</span></span>
+                <span class="xp-text" id="xp-display">ROOKIE</span>
+            </div>
+            <div class="currency-display">
+                <div class="credits"><i class="fa-solid fa-bolt"></i> <span id="credit-count">420</span></div>
+                <div class="money"><i class="fa-solid fa-sterling-sign"></i> <span id="money-saved">24.50</span></div>
+            </div>
+        </div>
+        <div class="health-toggles">
+            <button id="injury-toggle" class="toggle-btn" onclick="toggleInjury()">
+                <i class="fa-solid fa-user-injured"></i> Hamstring: <span id="hamstring-status">Pain</span>
+            </button>
+            <button id="tired-toggle" class="toggle-btn" onclick="toggleTired()">
+                <i class="fa-solid fa-battery-half"></i> Status: <span id="energy-status">Fresh</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="app-container">
+        
+        <!-- SECTION: DASHBOARD (Home) -->
+        <section id="dashboard" class="active-section">
+            <h2 class="section-title">Todays Protocol</h2>
+            
+            <!-- Mental Health Check Card -->
+            <div class="card" onclick="flipCard(this)">
+                <div class="card-inner">
+                    <div class="card-front mental-front">
+                        <i class="fa-solid fa-brain"></i>
+                        <h3>Morning Commute</h3>
+                        <p>Tap to check in</p>
+                    </div>
+                    <div class="card-back mental-back">
+                        <h3>The Audit</h3>
+                        <label><input type="checkbox"> Shaved / Groomed</label>
+                        <label><input type="checkbox"> Drank Water</label>
+                        <label><input type="checkbox"> One Big Task Defined</label>
+                        <button class="action-btn" onclick="completeMental(event)">Complete (+50 CR)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Container (Injected by JS) -->
+            <div id="activity-feed"></div>
+
+        </section>
+
+        <!-- SECTION: GYM (Workouts) -->
+        <section id="gym" class="hidden-section">
+            <h2 class="section-title">The Iron Temple</h2>
+            <div class="filter-bar">
+                <button onclick="filterGym('cardio')">Cardio</button>
+                <button onclick="filterGym('strength')">Strength</button>
+                <button onclick="filterGym('rehab')">Rehab</button>
+            </div>
+            <div id="gym-feed"></div>
+        </section>
+
+        <!-- SECTION: KITCHEN (Food) -->
+        <section id="kitchen" class="hidden-section">
+            <h2 class="section-title">Dopamine Kitchen</h2>
+            <div class="meal-input-area">
+                <input type="text" id="family-meal-input" placeholder="e.g. Pizza Night...">
+                <button onclick="analyzeFamilyMeal()"><i class="fa-solid fa-calculator"></i></button>
+            </div>
+            <div id="kitchen-advice"></div>
+            <div id="treat-shop"></div>
+        </section>
+
+    </main>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('dashboard')">
+            <i class="fa-solid fa-house"></i>
+        </button>
+        <button class="nav-btn" onclick="switchTab('gym')">
+            <i class="fa-solid fa-dumbbell"></i>
+        </button>
+        <button class="nav-btn" onclick="switchTab('kitchen')">
+            <i class="fa-solid fa-utensils"></i>
+        </button>
+        <button class="nav-btn" onclick="triggerSOS()">
+            <i class="fa-solid fa-life-ring"></i>
+        </button>
+    </nav>
+
+    <!-- SOS MODAL -->
+    <div id="sos-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>DOPAMINE CRASH DETECTED</h2>
+            <p>Do not buy food. Do not buy junk.</p>
+            <div class="sos-actions">
+                <button onclick="closeSOS()">Close</button>
+                <button class="safe-hit">Cold Shower</button>
+                <button class="safe-hit">Loud Music</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
