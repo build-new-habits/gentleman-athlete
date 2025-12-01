@@ -20,7 +20,6 @@ let state = {
         caloriesOut: 0,
         weight: 174 
     },
-    // Enhanced Weekly Plan with Macros
     weeklyPlan: {
         Mon: { b: null, l: null, d: null, s: null, ex: null, calsIn: 0, calsOut: 0 },
         Tue: { b: null, l: null, d: null, s: null, ex: null, calsIn: 0, calsOut: 0 },
@@ -33,19 +32,19 @@ let state = {
     customMeals: [],
     favorites: [],
     weightLog: [
-        { date: '2023-11-01', weight: 178 },
-        { date: '2023-11-15', weight: 176 },
-        { date: '2023-11-30', weight: 174 }
+        { date: '11/01', weight: 178 },
+        { date: '11/15', weight: 176 },
+        { date: '11/30', weight: 174 }
     ],
     milestones: [
-        { name: "Christmas Survival", date: "2023-12-25", target: 172, desc: "Maintain through the holidays" },
+        { name: "Christmas Survival", date: "2023-12-25", target: 172, desc: "Maintain through holidays" },
         { name: "Birthday (46)", date: "2024-02-01", target: 165, desc: "Fit at 46" },
         { name: "Easter Cut", date: "2024-03-31", target: 158, desc: "Lean for Spring" },
         { name: "Athletic Goal", date: "2024-06-01", target: 154, desc: "11 Stone. Done." }
     ]
 };
 
-// --- SMART INGREDIENT DATABASE ---
+// --- DATABASES ---
 const ingredientDB = {
     "salmon": { c: 200 }, "tuna": { c: 130 }, "chicken": { c: 165 },
     "steak": { c: 270 }, "tofu": { c: 90 }, "egg": { c: 70 },
@@ -54,7 +53,6 @@ const ingredientDB = {
     "yogurt": { c: 100 }, "pizza": {c: 600}, "burger": {c: 500}
 };
 
-// --- EXERCISE DATABASE (Enhanced) ---
 const activities = [
     {
         id: 'commute_run',
@@ -67,7 +65,7 @@ const activities = [
         color: 'var(--accent-green)',
         desc: "2.5 Miles. Zone 2.",
         strategy: "Aerobic Base",
-        motivation: "Builds the engine without cortisol spike.",
+        motivation: "Builds engine, low stress.",
         formGuide: "https://www.youtube.com/results?search_query=zone+2+running+form"
     },
     {
@@ -81,7 +79,7 @@ const activities = [
         color: 'var(--accent-pink)',
         desc: "8 x 100m. Max Effort.",
         strategy: "Fat Shredder",
-        motivation: "High Intensity burns fat for 24hrs after (EPOC).",
+        motivation: "Burns fat for 24hrs (EPOC).",
         formGuide: "https://www.youtube.com/results?search_query=sprinting+technique+drills"
     },
     {
@@ -95,7 +93,7 @@ const activities = [
         color: 'var(--accent-blue)',
         desc: "McGill Big 3.",
         strategy: "Injury Prevention",
-        motivation: "A bulletproof core prevents back pain.",
+        motivation: "Bulletproof core = no pain.",
         formGuide: "https://www.youtube.com/results?search_query=mcgill+big+3+exercises"
     },
     {
@@ -109,7 +107,7 @@ const activities = [
         color: 'var(--accent-green)',
         desc: "Lateral Agility.",
         strategy: "Reactive Speed",
-        motivation: "Fun cardio that doesn't feel like work.",
+        motivation: "Fun cardio, high agility.",
         formGuide: "https://www.youtube.com/results?search_query=tennis+footwork+drills"
     },
     {
@@ -123,12 +121,11 @@ const activities = [
         color: 'var(--accent-pink)',
         desc: "Bicep/Tricep Pump.",
         strategy: "Aesthetics",
-        motivation: "Look good, feel good. Dopamine hit.",
+        motivation: "Look good, feel good.",
         formGuide: "https://www.youtube.com/results?search_query=bicep+curl+form"
     }
 ];
 
-// --- DEFAULT MEAL DATABASE ---
 const defaultMeals = {
     breakfast: [
         { name: "Oats & Whey", ingredients: ["Oats", "Whey", "Berries"], nutrients: "C:40 P:25 F:5", calories: 350, prep: "5m", tags: ["carb_load"] },
@@ -148,12 +145,11 @@ const defaultMeals = {
     ]
 };
 
-// --- TREAT DATABASE ---
 const treatDatabase = [
     { id: 'espresso_home', title: "Home Brew", cost: -20, moneyValue: 3.40, icon: 'fa-mug-hot', desc: "Barista skills. Save £3.40." },
-    { id: 'wine_glass', title: "Fine Wine", cost: 150, moneyValue: 0, icon: 'fa-wine-glass', desc: "Friday/Saturday Only." },
+    { id: 'wine_glass', title: "Fine Wine", cost: 150, moneyValue: 0, icon: 'fa-wine-glass', desc: "Fri/Sat Only." },
     { id: 'mince_pie', title: "Mince Pie", cost: 200, moneyValue: 0, icon: 'fa-cookie-bite', desc: "Seasonal Fuel." },
-    { id: 'negroni', title: "Negroni", cost: 300, moneyValue: 0, icon: 'fa-cocktail', desc: "The Gentleman's Drink." }
+    { id: 'negroni', title: "Negroni", cost: 300, moneyValue: 0, icon: 'fa-cocktail', desc: "Gentleman's Drink." }
 ];
 
 // --- INITIALIZATION ---
@@ -175,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const sBtn = document.createElement('button');
         sBtn.id = 'nav-settings';
         sBtn.className = 'nav-btn';
-        sBtn.innerHTML = '<i class="fa-solid fa-chart-line"></i>'; // Changed to chart for progress/settings
+        sBtn.innerHTML = '<i class="fa-solid fa-chart-line"></i>'; 
         sBtn.onclick = () => switchTab('settings');
         
         nav.appendChild(pBtn);
@@ -191,12 +187,13 @@ function updateHUD() {
     
     const hamBtn = document.getElementById('injury-toggle');
     const hamStatus = document.getElementById('hamstring-status');
+    // Using simple text for mobile spacing
     if (state.status.hamstringInjured) {
         hamBtn.classList.add('active-warn');
-        hamStatus.innerText = "Injured (Rehab Mode)";
+        hamStatus.innerText = "Injured";
     } else {
         hamBtn.classList.remove('active-warn');
-        hamStatus.innerText = "Healed (Sprint Ready)";
+        hamStatus.innerText = "Healed";
     }
     
     saveState();
@@ -205,9 +202,8 @@ function updateHUD() {
 function toggleInjury() {
     state.status.hamstringInjured = !state.status.hamstringInjured;
     updateHUD();
-    // Re-render current view
     const activeSection = document.querySelector('.active-section');
-    if(activeSection.id === 'gym') renderGym(); 
+    if(activeSection && activeSection.id === 'gym') renderGym(); 
 }
 
 function toggleTired() {
@@ -234,7 +230,7 @@ function renderDashboard() {
     const feed = document.getElementById('activity-feed');
     feed.innerHTML = '';
     
-    // Mental Health Card (FIXED FLIP BUG)
+    // Mental Health Card (IMPROVED LAYOUT)
     const mentalCard = document.createElement('div');
     mentalCard.className = 'card';
     mentalCard.setAttribute('onclick', 'flipCard(this)');
@@ -244,19 +240,19 @@ function renderDashboard() {
                 <i class="fa-solid fa-brain" style="font-size:2rem; margin-bottom:10px;"></i>
                 <h3>Morning Protocol</h3>
                 <p>Start the day right.</p>
-                ${state.daily.mentalChecked ? '<span style="color:var(--accent-green); font-weight:bold;">COMPLETED</span>' : ''}
+                ${state.daily.mentalChecked ? '<span style="color:var(--accent-green); font-weight:bold; margin-top:5px;">COMPLETED</span>' : ''}
             </div>
             <div class="card-back mental-back">
-                <h3>The Audit</h3>
-                <div onclick="event.stopPropagation()" style="text-align:left; width:100%; padding:0 20px;">
-                    <label style="display:block; margin:5px 0; padding:5px; border-bottom:1px solid #444;">
-                        <input type="checkbox"> Shaved / Groomed
+                <h3 style="margin-bottom:10px;">The Audit</h3>
+                <div onclick="event.stopPropagation()" style="width:100%;">
+                    <label class="checklist-item">
+                        <input type="checkbox"> <span>Shaved / Groomed</span>
                     </label>
-                    <label style="display:block; margin:5px 0; padding:5px; border-bottom:1px solid #444;">
-                        <input type="checkbox"> Drank Water
+                    <label class="checklist-item">
+                        <input type="checkbox"> <span>Drank Water</span>
                     </label>
-                    <label style="display:block; margin:5px 0; padding:5px;">
-                        <input type="checkbox"> Plan Defined
+                    <label class="checklist-item">
+                        <input type="checkbox"> <span>Plan Defined</span>
                     </label>
                 </div>
                 <button class="action-btn" onclick="completeMental(event)">Complete (+50 CR)</button>
@@ -277,14 +273,14 @@ function renderDashboard() {
                     <span><i class="fa-solid fa-bullseye"></i> Goal: ${state.settings.goalWeight}</span>
                     <span><i class="fa-solid fa-weight-scale"></i> ${state.daily.weight} lbs</span>
                 </div>
-                <h3>Remaining: ${deficit} kcal</h3>
+                <h3 style="margin: 10px 0;">Remaining: ${deficit} kcal</h3>
                 <div style="font-size:0.8rem; color:#888;">
                     In: ${state.daily.caloriesIn} | Out: ${state.daily.caloriesOut}
                 </div>
                 <div style="margin-top:10px; height:6px; background:#333; border-radius:3px; overflow:hidden;">
                     <div style="width:${Math.min(((state.settings.startWeight - state.daily.weight) / (state.settings.startWeight - state.settings.goalWeight)) * 100, 100)}%; height:100%; background:var(--accent-green);"></div>
                 </div>
-                <button class="action-btn" style="margin-top:5px; font-size:0.7rem;" onclick="logWeight(event)">Log Weight</button>
+                <button class="action-btn" style="margin-top:auto; font-size:0.7rem; padding: 6px;" onclick="logWeight(event)">Log Weight</button>
             </div>
         </div>
     `;
@@ -326,9 +322,9 @@ function renderGym() {
                     <h3 style="font-size:0.9rem">${act.motivation}</h3>
                     <p style="font-size:0.8rem; color:var(--accent-pink);">Burn: ~${act.calories} kcal</p>
                     <button class="action-btn" onclick="completeActivity(${act.credits}, '${act.type}', ${act.calories}, event)">Complete</button>
-                    <div style="margin-top:10px;">
-                        <button class="action-btn" style="background:#475569; font-size:0.7rem;" onclick="openFormGuide('${act.formGuide}', event)">Watch Video</button>
-                        <button class="action-btn" style="background:#475569; font-size:0.7rem;" onclick="addToPlan('${act.title}', event, false, ${act.calories})">Plan This</button>
+                    <div style="display:flex; gap:5px; margin-top:10px; width:100%;">
+                        <button class="action-btn" style="background:#475569; font-size:0.6rem; padding:6px;" onclick="openFormGuide('${act.formGuide}', event)">Watch Video</button>
+                        <button class="action-btn" style="background:#475569; font-size:0.6rem; padding:6px;" onclick="addToPlan('${act.title}', event, false, ${act.calories})">Plan This</button>
                     </div>
                 </div>
             </div>
@@ -355,16 +351,15 @@ function renderKitchen() {
         <div class="card" style="height:60px; border-style:dashed;" onclick="showAddMealForm()">
             <div style="display:flex; justify-content:center; align-items:center; height:100%; cursor:pointer;">
                 <i class="fa-solid fa-plus-circle" style="color:var(--accent-green); margin-right:10px;"></i>
-                <h3>CREATE CUSTOM MEAL</h3>
+                <h3 style="margin:0;">CREATE MEAL</h3>
             </div>
         </div>
     `;
 
-    // Results Container
     const resultsContainer = document.createElement('div');
     resultsContainer.id = 'meal-results';
     feed.appendChild(resultsContainer);
-    renderMealCards(''); // Show all
+    renderMealCards(''); 
     
     renderShop();
 }
@@ -401,7 +396,7 @@ function renderMealCards(filterText) {
                 </div>
                 <div class="card-back">
                     <h4>Nutrients</h4>
-                    <p>${meal.nutrients}</p>
+                    <p style="font-size:0.8rem">${meal.nutrients}</p>
                     <button class="action-btn" onclick="addToPlan('${meal.name}', event, true, ${meal.calories})">Add to Planner</button>
                     <button class="action-btn" style="background:#475569; margin-top:5px;" onclick="logCalories(${meal.calories || 400}, event)">Ate This Now</button>
                 </div>
@@ -412,7 +407,6 @@ function renderMealCards(filterText) {
 }
 
 function renderPlanner() {
-    // THIS IS THE NEW "BEAUTIFUL TABLE"
     const main = document.getElementById('app-container');
     let planSection = document.getElementById('planner-section');
     if (!planSection) {
@@ -422,7 +416,6 @@ function renderPlanner() {
         main.appendChild(planSection);
     }
 
-    // Filter Buttons
     let html = `
         <h2 class="section-title">Weekly Strategy</h2>
         <div class="filter-bar" style="margin-bottom:15px; display:flex; gap:10px;">
@@ -433,7 +426,7 @@ function renderPlanner() {
         <div id="planner-table-container"></div>
     `;
     planSection.innerHTML = html;
-    filterPlanView('all'); // Render default
+    filterPlanView('all');
 }
 
 function filterPlanView(viewMode) {
@@ -451,7 +444,7 @@ function filterPlanView(viewMode) {
             <div style="background:var(--card-bg); border-radius:12px; padding:15px; border-left:4px solid #475569;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h3 style="margin:0; color:white;">${day}</h3>
-                    <span style="font-size:0.8rem; color:${balanceColor};">Net: ${balance > 0 ? '+' : ''}${balance} kcal</span>
+                    <span style="font-size:0.8rem; color:${balanceColor};">Net: ${balance > 0 ? '+' : ''}${balance}</span>
                 </div>
                 
                 ${(viewMode === 'all' || viewMode === 'meals') ? `
@@ -473,14 +466,11 @@ function filterPlanView(viewMode) {
         `;
     });
     html += `</div>`;
-    
     html += `<button class="action-btn" style="background:var(--accent-red); margin-top:20px; width:100%;" onclick="clearPlanner(event)">Clear Week</button>`;
-    
     container.innerHTML = html;
 }
 
 function renderSettings() {
-    // PROGRESS & MILESTONES VIEW
     const main = document.getElementById('app-container');
     let setSection = document.getElementById('settings-section');
     if (!setSection) {
@@ -490,13 +480,14 @@ function renderSettings() {
         main.appendChild(setSection);
     }
     
-    // Graph Bars Generation
-    let graphHTML = `<div style="display:flex; align-items:flex-end; gap:5px; height:150px; padding:10px; border-bottom:1px solid #444; margin-bottom:20px;">`;
+    // Graph Bars Generation (FIXED)
+    let graphHTML = `<div class="graph-container">`;
     state.weightLog.slice(-10).forEach(log => {
-        const height = Math.max(10, (log.weight - 150) * 5); // simple scaling
+        // Adjusted scaling for mobile
+        const heightPercentage = Math.min(Math.max((log.weight - 140) * 3, 10), 100); 
         graphHTML += `
-            <div style="flex:1; background:var(--accent-green); height:${height}px; position:relative; border-radius:3px 3px 0 0;" title="${log.date}: ${log.weight}">
-                <span style="position:absolute; top:-20px; left:0; font-size:0.6rem; width:100%; text-align:center;">${log.weight}</span>
+            <div class="graph-bar" style="height:${heightPercentage}%;">
+                <span class="graph-label">${log.weight}</span>
             </div>
         `;
     });
@@ -510,7 +501,7 @@ function renderSettings() {
                 <div class="card-front">
                     <h3>Weight History</h3>
                     ${graphHTML}
-                    <p style="font-size:0.8rem; color:#888;">Start: ${state.settings.startWeight} | Current: ${state.daily.weight} | Goal: ${state.settings.goalWeight}</p>
+                    <p style="font-size:0.8rem; color:#888;">Start: ${state.settings.startWeight} | Current: ${state.daily.weight}</p>
                 </div>
             </div>
         </div>
@@ -523,7 +514,7 @@ function renderSettings() {
                 <div style="background:var(--card-bg); padding:15px; border-radius:10px; border-left:4px solid ${isMet ? 'var(--accent-green)' : '#444'}; opacity:${isMet ? 0.6 : 1}">
                     <div style="display:flex; justify-content:space-between;">
                         <strong>${m.name}</strong>
-                        <span style="color:var(--accent-blue);">${m.date}</span>
+                        <span style="color:var(--accent-blue); font-size:0.8rem;">${m.date}</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-top:5px; color:#aaa;">
                         <span>Target: ${m.target} lbs</span>
@@ -565,14 +556,13 @@ function renderShop() {
     });
 }
 
-// --- RECOMMENDATION ENGINE ---
+// --- ACTIONS ---
+
 function recommendExercise(mealName, calories) {
     if(calories > 500) {
-        alert(`Heavy Meal Detected (${calories}kcal). \n\nRECOMMENDATION: \nSchedule a Sprint Session tomorrow to utilize the glycogen.`);
+        alert(`Heavy Meal Detected (${calories}kcal). \n\nRECOMMENDATION: \nSchedule Sprints tomorrow.`);
     }
 }
-
-// --- ACTIONS ---
 
 function addToPlan(itemName, event, isMeal = false, calories = 0) {
     event.stopPropagation();
@@ -581,7 +571,7 @@ function addToPlan(itemName, event, isMeal = false, calories = 0) {
 
     let slot = 'ex';
     if(isMeal) {
-        slot = prompt("Slot? (b=Breakfast, l=Lunch, d=Dinner, s=Snack)", "d").toLowerCase();
+        slot = prompt("Slot? (b, l, d, s)", "d").toLowerCase();
         if(!['b','l','d','s'].includes(slot)) return alert("Invalid Slot");
         
         state.weeklyPlan[day][slot] = itemName;
@@ -601,7 +591,6 @@ function filterMeals() {
     renderMealCards(text);
 }
 
-// --- STANDARD ---
 function completeActivity(credits, type, calories, event) {
     event.stopPropagation();
     state.credits += credits;
@@ -619,7 +608,7 @@ function logWeight(event) {
     const w = prompt("Current Weight (lbs):", state.daily.weight);
     if(w) {
         state.daily.weight = w;
-        state.weightLog.push({date: new Date().toLocaleDateString(), weight: w});
+        state.weightLog.push({date: new Date().toLocaleDateString(undefined, {month:'numeric', day:'numeric'}), weight: w});
         saveState();
         renderDashboard();
     }
