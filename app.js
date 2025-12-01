@@ -1,5 +1,5 @@
 // --- DATA STORE ---
-const state = {
+let state = {
     credits: 420,
     moneySaved: 24.50,
     level: 1,
@@ -59,7 +59,7 @@ const activities = [
     }
 ];
 
-// --- MEAL DATABASE (Phase 3 Integration) ---
+// --- MEAL DATABASE ---
 const mealDatabase = [
     {
         keywords: ["pizza", "burger", "takeaway", "chips"],
@@ -91,11 +91,48 @@ const mealDatabase = [
     }
 ];
 
+// --- TREAT DATABASE (The Dopamine Shop) ---
+const treatDatabase = [
+    {
+        id: 'espresso_home',
+        title: "Home Brew",
+        cost: -20, // Negative cost means you EARN credits
+        moneyValue: 3.40, // Money saved
+        icon: 'fa-mug-hot',
+        desc: "Barista skills. Save £3.40."
+    },
+    {
+        id: 'wine_glass',
+        title: "Fine Wine (Glass)",
+        cost: 150,
+        moneyValue: 0,
+        icon: 'fa-wine-glass',
+        desc: "Friday/Saturday Only. Enjoy it."
+    },
+    {
+        id: 'mince_pie',
+        title: "Mince Pie",
+        cost: 200,
+        moneyValue: 0,
+        icon: 'fa-cookie-bite',
+        desc: "Seasonal Fuel. Earn it first."
+    },
+    {
+        id: 'negroni',
+        title: "Negroni",
+        cost: 300,
+        moneyValue: 0,
+        icon: 'fa-cocktail',
+        desc: "The Gentleman's Drink. High cost."
+    }
+];
+
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
+    loadState(); // Load data from local storage
     updateHUD();
     renderActivities();
-    // Check local storage for saved data (Advanced step for later)
+    renderShop();
 });
 
 // --- CORE FUNCTIONS ---
@@ -114,6 +151,8 @@ function updateHUD() {
         hamBtn.classList.remove('active-warn');
         hamStatus.innerText = "Healed (Sprint Ready)";
     }
+    
+    saveState(); // Auto-save on every update
 }
 
 function toggleInjury() {
@@ -125,7 +164,18 @@ function toggleInjury() {
 function toggleTired() {
     state.status.energy = state.status.energy === 'Fresh' ? 'Tired' : 'Fresh';
     document.getElementById('energy-status').innerText = state.status.energy;
-    // In Phase 5 we will change workout recommendations based on this
+}
+
+// --- PERSISTENCE (Save/Load) ---
+function saveState() {
+    localStorage.setItem('gentlemanAthleteState', JSON.stringify(state));
+}
+
+function loadState() {
+    const saved = localStorage.getItem('gentlemanAthleteState');
+    if (saved) {
+        state = JSON.parse(saved);
+    }
 }
 
 // --- RENDER ENGINE ---
@@ -168,6 +218,41 @@ function renderActivities() {
     });
 }
 
+function renderShop() {
+    const shopContainer = document.getElementById('treat-shop');
+    if (!shopContainer) return;
+    
+    shopContainer.innerHTML = '<h3 class="section-title" style="margin-top:20px;">The Store</h3>';
+    
+    treatDatabase.forEach(item => {
+        const canAfford = state.credits >= item.cost;
+        const isEarner = item.cost < 0; // Negative cost means you earn credits (Home Brew)
+        
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.height = '120px'; // Slightly smaller for shop items
+        card.setAttribute('onclick', 'flipCard(this)');
+        
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-front" style="border-left: 4px solid ${isEarner ? 'var(--accent-green)' : 'var(--accent-pink)'}">
+                    <i class="fa-solid ${item.icon}" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                    <h4>${item.title}</h4>
+                    <p style="font-size:0.8rem">${item.desc}</p>
+                </div>
+                <div class="card-back">
+                    <p>${isEarner ? 'EARN' : 'COST'}: ${Math.abs(item.cost)} CR</p>
+                    ${item.moneyValue > 0 ? `<p style="color:var(--accent-green)">SAVES: £${item.moneyValue.toFixed(2)}</p>` : ''}
+                    <button class="action-btn" onclick="buyTreat(${item.cost}, ${item.moneyValue}, '${item.title}', event)">
+                        ${isEarner ? 'Brew & Bank' : 'Purchase'}
+                    </button>
+                </div>
+            </div>
+        `;
+        shopContainer.appendChild(card);
+    });
+}
+
 // --- INTERACTION ---
 
 function flipCard(cardElement) {
@@ -191,6 +276,35 @@ function completeActivity(credits, type, event) {
 
     updateHUD();
     alert(`+${credits} CR Earned!`);
+}
+
+function buyTreat(cost, moneySaved, title, event) {
+    event.stopPropagation();
+    
+    // Check affordability
+    if (cost > 0 && state.credits < cost) {
+        alert("INSUFFICIENT FUNDS: Go for a run first.");
+        return;
+    }
+    
+    // Transaction
+    state.credits -= cost; // If cost is negative (earning), this adds credits
+    if (moneySaved > 0) {
+        state.moneySaved += moneySaved;
+    }
+    
+    updateHUD();
+    
+    // Feedback
+    if (cost < 0) {
+        alert(`Good choice. £${moneySaved.toFixed(2)} banked and credits earned.`);
+    } else {
+        alert(`${title} Purchased. Enjoy it, you earned it.`);
+    }
+    
+    // Flip card back
+    const card = event.target.closest('.card');
+    card.classList.remove('flipped');
 }
 
 // --- MENTAL HEALTH LOGIC ---
