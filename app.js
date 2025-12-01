@@ -8,7 +8,11 @@ const state = {
         energy: 'Fresh' // Fresh, Tired
     },
     rehabStreak: 0, // Need 3 to unlock sprints
-    xp: 0
+    xp: 0,
+    daily: {
+        mentalChecked: false,
+        shaved: false
+    }
 };
 
 // --- EXERCISE DATABASE ---
@@ -52,6 +56,38 @@ const activities = [
         icon: 'fa-dumbbell',
         color: 'var(--accent-pink)',
         desc: "Biceps & Triceps. Look good."
+    }
+];
+
+// --- MEAL DATABASE (Phase 3 Integration) ---
+const mealDatabase = [
+    {
+        keywords: ["pizza", "burger", "takeaway", "chips"],
+        type: "heavy",
+        advice: "Carb Heavy. Eat 50% now. Save rest for post-workout.",
+        snack: "Greek Yogurt (Casein) before bed.",
+        color: "orange"
+    },
+    {
+        keywords: ["salmon", "tuna", "fish", "sushi", "prawn"],
+        type: "lean",
+        advice: "Perfect Pescatarian Fuel. High Protein/Omega-3.",
+        snack: "Dark Chocolate square (Reward).",
+        color: "var(--accent-green)"
+    },
+    {
+        keywords: ["pasta", "spaghetti", "lasagna", "mash", "potato"],
+        type: "carb_load",
+        advice: "Good for tomorrow's run. Watch portion size tonight.",
+        snack: "Glass of water.",
+        color: "var(--accent-blue)"
+    },
+    {
+        keywords: ["salad", "soup", "stew", "veg"],
+        type: "light",
+        advice: "Light fuel. You might get hungry later.",
+        snack: "Handful of nuts or Toast.",
+        color: "var(--accent-green)"
     }
 ];
 
@@ -157,6 +193,37 @@ function completeActivity(credits, type, event) {
     alert(`+${credits} CR Earned!`);
 }
 
+// --- MENTAL HEALTH LOGIC ---
+function completeMental(event) {
+    event.stopPropagation();
+    
+    if (state.daily.mentalChecked) {
+        alert("You've already checked in today, Gentleman.");
+        return;
+    }
+
+    // Get Checkbox values
+    const checkboxes = document.querySelectorAll('.mental-back input[type="checkbox"]');
+    let ticks = 0;
+    checkboxes.forEach(box => {
+        if (box.checked) ticks++;
+    });
+
+    // Calculate Reward
+    const reward = ticks * 20; // 20 credits per tick
+    state.credits += reward;
+    state.daily.mentalChecked = true;
+
+    // Flip card back and lock it visually
+    const card = event.target.closest('.card');
+    card.classList.remove('flipped');
+    card.style.opacity = "0.5";
+    card.style.pointerEvents = "none";
+
+    updateHUD();
+    alert(`Morning Audit Complete. +${reward} Credits added.`);
+}
+
 function switchTab(tabId) {
     // Hide all sections
     document.querySelectorAll('section').forEach(el => el.classList.replace('active-section', 'hidden-section'));
@@ -181,29 +248,39 @@ function analyzeFamilyMeal() {
     const input = document.getElementById('family-meal-input').value.toLowerCase();
     const output = document.getElementById('kitchen-advice');
     
-    let advice = "";
-    
-    if (input.includes("pizza") || input.includes("pasta") || input.includes("mash")) {
-        advice = `
-            <div class="card">
-                <div class="card-front" style="border-left: 4px solid orange;">
-                    <h3>Carb Heavy Alert</h3>
-                    <p>Family is eating heavy. Eat 50% portion.</p>
-                    <p><strong>Snack Rec:</strong> Greek Yogurt before bed.</p>
-                </div>
-            </div>
-        `;
-    } else {
-        advice = `
-            <div class="card">
-                <div class="card-front" style="border-left: 4px solid var(--accent-green);">
-                    <h3>Green Light</h3>
-                    <p>This meal fits the macros.</p>
-                    <p><strong>Add:</strong> A glass of water.</p>
-                </div>
-            </div>
-        `;
+    // Default Fallback
+    let match = {
+        advice: "Standard Meal. Enjoy.",
+        snack: "None needed.",
+        color: "var(--text-mute)",
+        title: "Meal Logged"
+    };
+
+    // Database Search
+    for (let meal of mealDatabase) {
+        if (meal.keywords.some(k => input.includes(k))) {
+            match = {
+                title: meal.type.toUpperCase() + " DETECTED",
+                advice: meal.advice,
+                snack: meal.snack,
+                color: meal.color
+            };
+            break; 
+        }
     }
     
-    output.innerHTML = advice;
+    const html = `
+        <div class="card">
+            <div class="card-front" style="border-left: 4px solid ${match.color};">
+                <h3>${match.title}</h3>
+                <p>${match.advice}</p>
+                <div style="margin-top:10px; padding-top:10px; border-top:1px solid #333;">
+                    <p style="font-size:0.8rem; color:#888;">RECOMMENDED ADDITION:</p>
+                    <p><strong>${match.snack}</strong></p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    output.innerHTML = html;
 }
