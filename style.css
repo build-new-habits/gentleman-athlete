@@ -3,11 +3,11 @@
     --card-bg: #1e293b;
     --text-main: #f1f5f9;
     --text-mute: #94a3b8;
-    --accent-green: #10b981; /* Health/Money */
-    --accent-pink: #ec4899; /* Dopamine/Treats */
-    --accent-blue: #3b82f6; /* Logic/Ice */
-    --accent-red: #ef4444; /* Danger/Injury */
-    --font-stack: 'Inter', system-ui, sans-serif;
+    --accent-green: #10b981;
+    --accent-pink: #ec4899;
+    --accent-blue: #3b82f6;
+    --accent-red: #ef4444;
+    --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -16,17 +16,17 @@ body {
     background-color: var(--bg-dark);
     color: var(--text-main);
     font-family: var(--font-stack);
-    padding-bottom: 90px; /* Space for nav */
-    overscroll-behavior-y: none; /* Prevents bounce on mobile */
+    padding-bottom: 100px; /* Space for nav */
+    overscroll-behavior-y: none;
 }
 
-/* --- HUD --- */
+/* --- HUD (Header) --- */
 .hud {
     position: sticky;
     top: 0;
-    background: rgba(15, 23, 42, 0.95);
+    background: rgba(15, 23, 42, 0.98);
     backdrop-filter: blur(10px);
-    padding: 15px;
+    padding: 10px 15px;
     border-bottom: 1px solid #334155;
     z-index: 100;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
@@ -51,60 +51,70 @@ body {
 
 .currency-display {
     text-align: right;
-    font-family: 'Courier New', monospace;
+    font-family: monospace; /* Better for numbers */
     font-weight: bold;
+    font-size: 0.9rem;
 }
 
-.credits { color: var(--accent-pink); text-shadow: 0 0 10px rgba(236, 72, 153, 0.3); }
-.money { color: var(--accent-green); font-size: 0.85rem; }
+.credits { color: var(--accent-pink); margin-right: 8px; }
+.money { color: var(--accent-green); }
 
-.health-toggles { display: flex; gap: 10px; }
+.health-toggles { 
+    display: flex; 
+    gap: 8px; /* Tighter gap for mobile */
+}
 
 .toggle-btn {
     flex: 1;
     background: var(--card-bg);
     border: 1px solid #334155;
     color: var(--text-mute);
-    padding: 8px;
+    padding: 8px 4px; /* Less horizontal padding */
     border-radius: 8px;
-    font-size: 0.75rem;
+    font-size: 0.7rem; /* Smaller font for mobile */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
+    white-space: nowrap; /* Prevent text wrapping */
 }
 
 .toggle-btn.active-warn {
     border-color: var(--accent-red);
     color: var(--accent-red);
     background: rgba(239, 68, 68, 0.1);
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.1);
+}
+
+/* --- MAIN CONTAINER --- */
+#app-container {
+    padding: 15px; /* Prevent edge touching */
+    max-width: 600px; /* Tablet constraint */
+    margin: 0 auto;
 }
 
 /* --- SECTIONS --- */
-.active-section { display: block; padding: 15px; animation: fadeIn 0.4s ease; }
+.active-section { display: block; animation: fadeIn 0.4s ease; }
 .hidden-section { display: none; }
 
 .section-title {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: var(--text-mute);
-    margin: 25px 0 15px 0;
+    margin: 20px 0 10px 0;
     border-left: 3px solid var(--accent-green);
     padding-left: 10px;
     opacity: 0.8;
 }
 
-/* --- FLIPPING CARDS --- */
+/* --- CARDS --- */
 .card {
     background-color: transparent;
     width: 100%;
-    /* Height is set inline by JS mostly, but min-height helps */
-    min-height: 120px; 
+    min-height: 130px; 
     perspective: 1000px;
     margin-bottom: 15px;
     cursor: pointer;
@@ -120,7 +130,7 @@ body {
     transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
     transform-style: preserve-3d;
     border-radius: 16px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
 .card.flipped .card-inner { transform: rotateY(180deg); }
@@ -141,53 +151,96 @@ body {
     background: var(--card-bg);
 }
 
-/* Specific styling for front content alignment */
-.card-front {
-    align-items: stretch; /* Allows top bar to stretch */
-    text-align: left;
+.card-front { 
+    align-items: stretch; 
+    text-align: left; 
 }
-.card-front i { align-self: center; } /* Icons centered */
-.card-front h3, .card-front h4 { text-align: center; margin-bottom: 5px; color: #fff;}
-.card-front p { text-align: center; color: var(--text-mute); }
+
+/* Fix for Card Content Centering */
+.card-front h3, .card-front h4 { text-align: center; margin-bottom: 5px; color: #fff; font-size: 1rem; }
+.card-front p { text-align: center; color: var(--text-mute); font-size: 0.85rem; }
+.card-front i { align-self: center; margin-bottom: 8px; }
 
 .mental-front { border-left: 4px solid var(--accent-blue) !important; }
 
 .card-back {
-    background-color: #0f172a; /* Darker back */
+    background-color: #0f172a;
     color: white;
     transform: rotateY(180deg);
     border-color: var(--accent-green);
-    overflow-y: auto; /* Allow scroll if content is long */
+    padding: 10px; /* Tighter padding for list items */
+}
+
+/* --- CHECKLIST STYLING (Fixes overlapping text) --- */
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    text-align: left;
+}
+
+.checklist-item input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-green);
+}
+
+.checklist-item span {
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 /* --- BUTTONS --- */
 .action-btn {
-    margin-top: 8px;
+    margin-top: auto; /* Pushes button to bottom */
     background: var(--accent-green);
     border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
+    padding: 8px 20px;
+    border-radius: 20px;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--bg-dark);
     width: 100%;
     cursor: pointer;
-    transition: transform 0.1s;
     text-transform: uppercase;
 }
-.action-btn:active { transform: scale(0.96); }
 
-/* --- INPUTS --- */
-input[type="text"] {
-    background: #0f172a;
-    border: 1px solid #334155;
-    color: white;
-    padding: 12px;
-    border-radius: 8px;
-    outline: none;
-    font-family: inherit;
+/* --- GRAPH STYLING --- */
+.graph-container {
+    display: flex;
+    align-items: flex-end; /* Bars grow from bottom */
+    gap: 4px; /* Space between bars */
+    height: 120px;
+    padding: 10px 5px;
+    border-bottom: 1px solid #334155;
+    margin-bottom: 15px;
 }
-input[type="text"]:focus { border-color: var(--accent-green); }
+
+.graph-bar {
+    flex: 1;
+    background: var(--accent-green);
+    border-radius: 3px 3px 0 0;
+    position: relative;
+    min-width: 8px;
+    transition: height 0.3s ease;
+    opacity: 0.8;
+}
+
+.graph-label {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: #fff;
+    width: 100%;
+    text-align: center;
+}
 
 /* --- BOTTOM NAV --- */
 .bottom-nav {
@@ -199,7 +252,7 @@ input[type="text"]:focus { border-color: var(--accent-green); }
     backdrop-filter: blur(10px);
     display: flex;
     justify-content: space-around;
-    padding: 15px 10px 25px 10px; /* Extra padding bottom for iPhone home bar */
+    padding: 12px 10px 25px 10px; /* Safe area for iPhone home bar */
     border-top: 1px solid #334155;
     z-index: 200;
 }
@@ -208,13 +261,10 @@ input[type="text"]:focus { border-color: var(--accent-green); }
     background: none;
     border: none;
     color: var(--text-mute);
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     cursor: pointer;
-    transition: all 0.2s;
     padding: 5px;
 }
-
-.nav-btn.active, .nav-btn:active { color: var(--accent-green); transform: translateY(-2px); }
 
 /* --- UTILS --- */
 @keyframes fadeIn {
@@ -222,27 +272,4 @@ input[type="text"]:focus { border-color: var(--accent-green); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.modal {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 300;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.modal.hidden { display: none; }
-.modal-content {
-    background: var(--card-bg);
-    padding: 30px;
-    border-radius: 20px;
-    border: 2px solid var(--accent-red);
-    text-align: center;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 0 50px rgba(239, 68, 68, 0.2);
-}
-
-/* --- PLANNER SPECIFIC --- */
-#planner-table-container h3 { font-size: 1.1rem; }
 .filter-bar button { border-radius: 8px; }
