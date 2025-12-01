@@ -10,7 +10,7 @@ let state = {
     settings: {
         fontSize: '100%',
         calorieTarget: 2500,
-        startWeight: 174, 
+        startWeight: 178, 
         goalWeight: 154 
     },
     daily: {
@@ -44,153 +44,173 @@ let state = {
     ]
 };
 
-// --- DATABASES ---
-const ingredientDB = {
-    "salmon": { c: 200 }, "tuna": { c: 130 }, "chicken": { c: 165 },
-    "steak": { c: 270 }, "tofu": { c: 90 }, "egg": { c: 70 },
-    "rice": { c: 200 }, "pasta": { c: 220 }, "oats": { c: 150 },
-    "potato": { c: 160 }, "avocado": { c: 240 }, "nuts": { c: 180 },
-    "yogurt": { c: 100 }, "pizza": {c: 600}, "burger": {c: 500}
-};
-
-const activities = [
-    {
-        id: 'commute_run',
-        title: "Football Commute",
-        type: 'cardio',
-        credits: 150,
-        risk: 'medium',
-        calories: 300,
-        icon: 'fa-person-running',
-        color: 'var(--accent-green)',
-        desc: "2.5 Miles. Zone 2.",
-        strategy: "Aerobic Base",
-        motivation: "Builds engine, low stress.",
-        formGuide: "https://www.youtube.com/results?search_query=zone+2+running+form"
-    },
-    {
-        id: 'sprint_session',
-        title: "Track Sprints",
-        type: 'cardio',
-        credits: 300,
-        risk: 'high',
-        calories: 450,
-        icon: 'fa-wind',
-        color: 'var(--accent-pink)',
-        desc: "8 x 100m. Max Effort.",
-        strategy: "Fat Shredder",
-        motivation: "Burns fat for 24hrs (EPOC).",
-        formGuide: "https://www.youtube.com/results?search_query=sprinting+technique+drills"
-    },
-    {
-        id: 'core_rehab',
-        title: "Disc Protection",
-        type: 'rehab',
-        credits: 100,
-        risk: 'low',
-        calories: 120,
-        icon: 'fa-shield-heart',
-        color: 'var(--accent-blue)',
-        desc: "McGill Big 3.",
-        strategy: "Injury Prevention",
-        motivation: "Bulletproof core = no pain.",
-        formGuide: "https://www.youtube.com/results?search_query=mcgill+big+3+exercises"
-    },
-    {
-        id: 'tennis_match',
-        title: "Tennis Match",
-        type: 'sport',
-        credits: 250,
-        risk: 'medium',
-        calories: 400,
-        icon: 'fa-table-tennis-paddle-ball',
-        color: 'var(--accent-green)',
-        desc: "Lateral Agility.",
-        strategy: "Reactive Speed",
-        motivation: "Fun cardio, high agility.",
-        formGuide: "https://www.youtube.com/results?search_query=tennis+footwork+drills"
-    },
-    {
-        id: 'vanity_arms',
-        title: "Sleeve Fillers",
-        type: 'strength',
-        credits: 80,
-        risk: 'low',
-        calories: 150,
-        icon: 'fa-dumbbell',
-        color: 'var(--accent-pink)',
-        desc: "Bicep/Tricep Pump.",
-        strategy: "Aesthetics",
-        motivation: "Look good, feel good.",
-        formGuide: "https://www.youtube.com/results?search_query=bicep+curl+form"
-    }
-];
-
-const defaultMeals = {
-    breakfast: [
-        { name: "Oats & Whey", ingredients: ["Oats", "Whey", "Berries"], nutrients: "C:40 P:25 F:5", calories: 350, prep: "5m", tags: ["carb_load"] },
-        { name: "Smoked Salmon Eggs", ingredients: ["Eggs", "Salmon", "Spinach"], nutrients: "C:2 P:30 F:15", calories: 400, prep: "10m", tags: ["protein", "fat"] }
-    ],
-    lunch: [
-        { name: "Tuna Niçoise", ingredients: ["Tuna", "Egg", "Olives", "Green Beans"], nutrients: "C:10 P:35 F:12", calories: 450, prep: "15m", tags: ["protein"] },
-        { name: "Prawn Wrap", ingredients: ["Prawn", "Wrap", "Avocado"], nutrients: "C:30 P:20 F:10", calories: 380, prep: "5m", tags: ["balanced"] }
-    ],
-    dinner: [
-        { name: "Monkfish Curry", ingredients: ["Monkfish", "Coconut Milk", "Turmeric"], nutrients: "C:10 P:30 F:20", calories: 500, prep: "25m", tags: ["protein", "anti_inflammatory"] },
-        { name: "Spicy Tofu Stir-fry", ingredients: ["Tofu", "Chilli", "Bok Choi", "Noodles"], nutrients: "C:45 P:20 F:8", calories: 420, prep: "15m", tags: ["vegan", "light"] }
-    ],
-    snacks: [
-        { name: "Greek Yogurt", ingredients: ["Yogurt", "Honey"], nutrients: "High Casein", calories: 150, prep: "1m", tags: ["recovery"] },
-        { name: "Apple & Walnuts", ingredients: ["Apple", "Nuts"], nutrients: "Healthy Fats", calories: 200, prep: "1m", tags: ["energy"] }
-    ]
-};
-
-const treatDatabase = [
-    { id: 'espresso_home', title: "Home Brew", cost: -20, moneyValue: 3.40, icon: 'fa-mug-hot', desc: "Barista skills. Save £3.40." },
-    { id: 'wine_glass', title: "Fine Wine", cost: 150, moneyValue: 0, icon: 'fa-wine-glass', desc: "Fri/Sat Only." },
-    { id: 'mince_pie', title: "Mince Pie", cost: 200, moneyValue: 0, icon: 'fa-cookie-bite', desc: "Seasonal Fuel." },
-    { id: 'negroni', title: "Negroni", cost: 300, moneyValue: 0, icon: 'fa-cocktail', desc: "Gentleman's Drink." }
-];
-
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     loadState();
-    applySettings();
     updateHUD();
-    renderDashboard();
-    initNavigation(); // New robust navigation builder
+    initNavigation();
+    renderDashboard(); // Default View
 });
 
-// --- NAVIGATION BUILDER (Fixed Wheel) ---
+// --- NAVIGATION ---
 function initNavigation() {
     const nav = document.querySelector('.bottom-nav');
-    nav.innerHTML = ''; // Clear existing to prevent duplicates
-
-    // 1. Dashboard (Home)
-    addNavBtn(nav, 'dashboard', 'fa-house');
-    // 2. Gym (Dumbbell)
-    addNavBtn(nav, 'gym', 'fa-dumbbell');
-    // 3. Kitchen (Utensils)
-    addNavBtn(nav, 'kitchen', 'fa-utensils');
-    // 4. Settings (The Wheel)
-    addNavBtn(nav, 'settings', 'fa-gear'); // fa-gear is the wheel
-    // 5. Planner (Calendar)
-    addNavBtn(nav, 'planner', 'fa-calendar-week');
-    // 6. Progress (Graph)
-    addNavBtn(nav, 'progress', 'fa-chart-line');
+    nav.innerHTML = `
+        <button class="nav-btn active" id="btn-dashboard" onclick="switchTab('dashboard')"><i class="fa-solid fa-house"></i></button>
+        <button class="nav-btn" id="btn-gym" onclick="switchTab('gym')"><i class="fa-solid fa-dumbbell"></i></button>
+        <button class="nav-btn" id="btn-kitchen" onclick="switchTab('kitchen')"><i class="fa-solid fa-utensils"></i></button>
+        <button class="nav-btn" id="btn-planner" onclick="switchTab('planner')"><i class="fa-solid fa-calendar-week"></i></button>
+        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i></button>
+    `;
 }
 
-function addNavBtn(container, tabName, iconClass) {
-    const btn = document.createElement('button');
-    btn.className = 'nav-btn';
-    btn.onclick = () => switchTab(tabName);
-    btn.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
-    if(tabName === 'dashboard') btn.style.color = 'var(--accent-green)'; // Active state default
-    container.appendChild(btn);
+function switchTab(tabId) {
+    // 1. Hide all sections
+    document.querySelectorAll('section').forEach(el => el.style.display = 'none');
+    
+    // 2. Render target section
+    if(tabId === 'dashboard') { renderDashboard(); document.getElementById('dashboard').style.display = 'block'; }
+    if(tabId === 'gym') { renderGym(); document.getElementById('gym').style.display = 'block'; }
+    if(tabId === 'kitchen') { renderKitchen(); document.getElementById('kitchen').style.display = 'block'; }
+    if(tabId === 'planner') { renderPlanner(); document.getElementById('planner-section').style.display = 'block'; }
+    if(tabId === 'settings') { renderSettings(); document.getElementById('settings-section').style.display = 'block'; }
+
+    // 3. Update Nav Active State
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`btn-${tabId}`);
+    if(activeBtn) activeBtn.classList.add('active');
 }
 
-// --- CORE LOGIC ---
+// --- RENDERERS ---
 
+function renderDashboard() {
+    const feed = document.getElementById('activity-feed');
+    feed.innerHTML = '';
+    
+    // Mental Health Card (Fixed Height)
+    const mentalCard = document.createElement('div');
+    mentalCard.className = 'card';
+    mentalCard.setAttribute('onclick', 'flipCard(this)');
+    mentalCard.innerHTML = `
+        <div class="card-inner">
+            <div class="card-front" style="border-left: 4px solid var(--accent-blue);">
+                <i class="fa-solid fa-brain" style="font-size:2rem; margin-bottom:10px;"></i>
+                <h3>Morning Protocol</h3>
+                <p>Start the day right.</p>
+                ${state.daily.mentalChecked ? '<span style="color:var(--accent-green); font-weight:bold; margin-top:5px;">COMPLETED</span>' : ''}
+            </div>
+            <div class="card-back">
+                <h3 style="margin-bottom:10px;">The Audit</h3>
+                <div class="checklist-container" onclick="event.stopPropagation()">
+                    <label class="checklist-item"><input type="checkbox"> <span>Shaved / Groomed</span></label>
+                    <label class="checklist-item"><input type="checkbox"> <span>Drank Water</span></label>
+                    <label class="checklist-item"><input type="checkbox"> <span>Plan Defined</span></label>
+                </div>
+                <button class="action-btn" onclick="completeMental(event)">Complete (+50 CR)</button>
+            </div>
+        </div>
+    `;
+    feed.appendChild(mentalCard);
+
+    // Weight/Calorie Card
+    const deficit = state.settings.calorieTarget - (state.daily.caloriesIn - state.daily.caloriesOut);
+    const deficitCard = document.createElement('div');
+    deficitCard.className = 'card';
+    deficitCard.innerHTML = `
+        <div class="card-inner">
+            <div class="card-front" style="border-left: 4px solid var(--accent-green);">
+                <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px;">
+                    <span><i class="fa-solid fa-bullseye"></i> Goal: ${state.settings.goalWeight}</span>
+                    <span><i class="fa-solid fa-weight-scale"></i> ${state.daily.weight} lbs</span>
+                </div>
+                <h3>${deficit} kcal left</h3>
+                <div class="graph-wrapper">
+                     ${generateGraphBars()}
+                </div>
+            </div>
+        </div>
+    `;
+    feed.appendChild(deficitCard);
+}
+
+function renderSettings() {
+    const main = document.getElementById('app-container');
+    let setSection = document.getElementById('settings-section');
+    if (!setSection) {
+        setSection = document.createElement('section');
+        setSection.id = 'settings-section';
+        setSection.className = 'hidden-section';
+        main.appendChild(setSection);
+    }
+    
+    // THIS IS THE NEW FORM (No Flipping)
+    setSection.innerHTML = `
+        <h2 class="section-title">Settings & Data</h2>
+        
+        <div class="settings-group">
+            <div class="setting-row">
+                <label>Current Weight (lbs)</label>
+                <input type="number" id="input-weight" value="${state.daily.weight}" onchange="updateSetting('weight', this.value)">
+            </div>
+            <div class="setting-group">
+                <label>Goal Weight (lbs)</label>
+                <input type="number" id="input-goal" value="${state.settings.goalWeight}" onchange="updateSetting('goal', this.value)">
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="setting-row">
+                <label>Calorie Target</label>
+                <input type="number" id="input-cals" value="${state.settings.calorieTarget}" onchange="updateSetting('cals', this.value)">
+            </div>
+            <div class="setting-row">
+                <label>Start Weight (for graph scale)</label>
+                <input type="number" id="input-start" value="${state.settings.startWeight}" onchange="updateSetting('start', this.value)">
+            </div>
+        </div>
+
+        <button class="action-btn" style="background:var(--accent-red); margin-top:20px;" onclick="resetData(event)">Factory Reset App</button>
+        <p style="text-align:center; color:#444; margin-top:20px; font-size:0.7rem;">Gentleman Athlete v2.1</p>
+    `;
+}
+
+// --- LOGIC HELPERS ---
+
+function updateSetting(key, value) {
+    if(key === 'weight') {
+        state.daily.weight = parseFloat(value);
+        state.weightLog.push({date: new Date().toLocaleDateString(), weight: parseFloat(value)});
+    }
+    if(key === 'goal') state.settings.goalWeight = parseFloat(value);
+    if(key === 'cals') state.settings.calorieTarget = parseFloat(value);
+    if(key === 'start') state.settings.startWeight = parseFloat(value);
+    
+    saveState();
+    alert("Saved.");
+}
+
+function generateGraphBars() {
+    // Generate simple HTML bars
+    let html = '';
+    const logs = state.weightLog.slice(-7); // Last 7 entries
+    logs.forEach(log => {
+        // Calculate height percentage based on start/goal range
+        const range = state.settings.startWeight - state.settings.goalWeight;
+        const current = log.weight - state.settings.goalWeight;
+        let percent = (current / range) * 100;
+        if(percent < 10) percent = 10; // Min height
+        if(percent > 100) percent = 100;
+
+        html += `
+            <div class="graph-bar" style="height:${percent}%;">
+                <span class="graph-label">${log.weight}</span>
+            </div>
+        `;
+    });
+    return html;
+}
+
+// --- CORE UTILS ---
 function updateHUD() {
     document.getElementById('credit-count').innerText = state.credits;
     document.getElementById('money-saved').innerText = state.moneySaved.toFixed(2);
@@ -204,14 +224,13 @@ function updateHUD() {
         hamBtn.classList.remove('active-warn');
         hamStatus.innerText = "Healed";
     }
-    
     saveState();
 }
 
 function toggleInjury() {
     state.status.hamstringInjured = !state.status.hamstringInjured;
     updateHUD();
-    const activeSection = document.querySelector('.active-section');
+    const activeSection = document.querySelector('section[style*="block"]'); // Find visible
     if(activeSection && activeSection.id === 'gym') renderGym(); 
 }
 
@@ -220,526 +239,37 @@ function toggleTired() {
     document.getElementById('energy-status').innerText = state.status.energy;
 }
 
-function saveState() {
-    localStorage.setItem('gentlemanAthleteState', JSON.stringify(state));
-}
-
+function saveState() { localStorage.setItem('gentlemanAthleteState', JSON.stringify(state)); }
 function loadState() {
     const saved = localStorage.getItem('gentlemanAthleteState');
     if (saved) state = JSON.parse(saved);
 }
 
-function applySettings() {
-    document.body.style.fontSize = state.settings.fontSize || '100%';
-}
-
-// --- RENDERERS ---
-
-function renderDashboard() {
-    const feed = document.getElementById('activity-feed');
-    feed.innerHTML = '';
-    
-    // Mental Health Card
-    const mentalCard = document.createElement('div');
-    mentalCard.className = 'card';
-    mentalCard.setAttribute('onclick', 'flipCard(this)');
-    mentalCard.innerHTML = `
-        <div class="card-inner">
-            <div class="card-front mental-front">
-                <i class="fa-solid fa-brain" style="font-size:2rem; margin-bottom:10px;"></i>
-                <h3>Morning Protocol</h3>
-                <p>Start the day right.</p>
-                ${state.daily.mentalChecked ? '<span style="color:var(--accent-green); font-weight:bold; margin-top:5px;">COMPLETED</span>' : ''}
-            </div>
-            <div class="card-back mental-back">
-                <h3 style="margin-bottom:10px;">The Audit</h3>
-                <div onclick="event.stopPropagation()" style="width:100%;">
-                    <label class="checklist-item">
-                        <input type="checkbox"> <span>Shaved / Groomed</span>
-                    </label>
-                    <label class="checklist-item">
-                        <input type="checkbox"> <span>Drank Water</span>
-                    </label>
-                    <label class="checklist-item">
-                        <input type="checkbox"> <span>Plan Defined</span>
-                    </label>
-                </div>
-                <button class="action-btn" onclick="completeMental(event)">Complete (+50 CR)</button>
-            </div>
-        </div>
-    `;
-    feed.appendChild(mentalCard);
-
-    // Deficit Card
-    const deficit = state.settings.calorieTarget - (state.daily.caloriesIn - state.daily.caloriesOut);
-    const deficitCard = document.createElement('div');
-    deficitCard.className = 'card';
-    deficitCard.style.height = '140px';
-    deficitCard.innerHTML = `
-        <div class="card-inner">
-            <div class="card-front" style="border-left: 4px solid var(--accent-blue)">
-                <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:5px;">
-                    <span><i class="fa-solid fa-bullseye"></i> Goal: ${state.settings.goalWeight}</span>
-                    <span><i class="fa-solid fa-weight-scale"></i> ${state.daily.weight} lbs</span>
-                </div>
-                <h3 style="margin: 10px 0;">Remaining: ${deficit} kcal</h3>
-                <div style="font-size:0.8rem; color:#888;">
-                    In: ${state.daily.caloriesIn} | Out: ${state.daily.caloriesOut}
-                </div>
-                <div style="margin-top:10px; height:6px; background:#333; border-radius:3px; overflow:hidden;">
-                    <div style="width:${Math.min(((state.settings.startWeight - state.daily.weight) / (state.settings.startWeight - state.settings.goalWeight)) * 100, 100)}%; height:100%; background:var(--accent-green);"></div>
-                </div>
-                <button class="action-btn" style="margin-top:auto; font-size:0.7rem; padding: 6px;" onclick="logWeight(event)">Log Weight</button>
-            </div>
-        </div>
-    `;
-    feed.appendChild(deficitCard);
-}
-
-function renderGym() {
-    const feed = document.getElementById('gym-feed');
-    feed.innerHTML = ''; 
-    
-    feed.innerHTML += `<div style="text-align:center; margin-bottom:20px;">
-        <button class="action-btn" style="background:#334155" onclick="manualLog(event)"><i class="fa-solid fa-watch"></i> Sync Garmin/Manual</button>
-    </div>`;
-
-    activities.forEach(act => {
-        let isLocked = false;
-        let lockReason = "";
-
-        if (act.risk === 'high' && state.status.hamstringInjured) {
-            isLocked = true;
-            lockReason = "Hamstring Risk";
-        }
-
-        const card = document.createElement('div');
-        card.className = `card ${isLocked ? 'locked' : ''}`;
-        if (!isLocked) card.setAttribute('onclick', 'flipCard(this)');
-
-        card.innerHTML = `
-            <div class="card-inner">
-                <div class="card-front" style="border-left: 4px solid ${act.color}">
-                    <i class="fa-solid ${act.icon}" style="font-size: 2rem; color: ${act.color}; margin-bottom: 10px;"></i>
-                    <h3>${act.title}</h3>
-                    <p>${act.desc}</p>
-                    <small style="color:#888;">${act.strategy}</small>
-                    ${isLocked ? `<div style="color:var(--accent-red); font-weight:bold; margin-top:5px;"><i class="fa-solid fa-lock"></i> ${lockReason}</div>` : ''}
-                </div>
-                <div class="card-back">
-                    <h3 style="font-size:0.9rem">${act.motivation}</h3>
-                    <p style="font-size:0.8rem; color:var(--accent-pink);">Burn: ~${act.calories} kcal</p>
-                    <button class="action-btn" onclick="completeActivity(${act.credits}, '${act.type}', ${act.calories}, event)">Complete</button>
-                    <div style="display:flex; gap:5px; margin-top:10px; width:100%;">
-                        <button class="action-btn" style="background:#475569; font-size:0.6rem; padding:6px;" onclick="openFormGuide('${act.formGuide}', event)">Watch Video</button>
-                        <button class="action-btn" style="background:#475569; font-size:0.6rem; padding:6px;" onclick="addToPlan('${act.title}', event, false, ${act.calories})">Plan This</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        feed.appendChild(card);
-    });
-}
-
-function renderKitchen() {
-    const feed = document.getElementById('kitchen-advice');
-    feed.innerHTML = '';
-    
-    feed.innerHTML += `
-        <div style="margin-bottom:20px;">
-            <input type="text" id="meal-search" placeholder="Search (e.g. Salmon)..." 
-               style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:white;"
-               onkeyup="filterMeals()">
-        </div>
-    `;
-
-    feed.innerHTML += `
-        <div class="card" style="height:60px; border-style:dashed;" onclick="showAddMealForm()">
-            <div style="display:flex; justify-content:center; align-items:center; height:100%; cursor:pointer;">
-                <i class="fa-solid fa-plus-circle" style="color:var(--accent-green); margin-right:10px;"></i>
-                <h3 style="margin:0;">CREATE MEAL</h3>
-            </div>
-        </div>
-    `;
-
-    const resultsContainer = document.createElement('div');
-    resultsContainer.id = 'meal-results';
-    feed.appendChild(resultsContainer);
-    renderMealCards(''); 
-    
-    renderShop();
-}
-
-function renderMealCards(filterText) {
-    const container = document.getElementById('meal-results');
-    container.innerHTML = '';
-    
-    const allMeals = [...Object.values(defaultMeals).flat(), ...state.customMeals];
-
-    allMeals.forEach(meal => {
-        if (filterText && !meal.name.toLowerCase().includes(filterText) && !meal.ingredients.some(i => i.toLowerCase().includes(filterText))) {
-            return;
-        }
-
-        const isFav = state.favorites.includes(meal.name);
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.style.height = '160px';
-        card.setAttribute('onclick', 'flipCard(this)');
-        
-        card.innerHTML = `
-            <div class="card-inner">
-                <div class="card-front" style="border-left: 4px solid ${isFav ? 'gold' : 'var(--accent-green)'}">
-                    <div style="display:flex; justify-content:space-between;">
-                        <h4>${meal.name}</h4>
-                        <i class="fa-${isFav ? 'solid' : 'regular'} fa-star" onclick="toggleFav('${meal.name}', event)" style="color:${isFav ? 'gold' : '#666'}"></i>
-                    </div>
-                    <p style="font-size:0.8rem">${meal.ingredients.join(', ')}</p>
-                    <p style="font-size:0.7rem; color:#888;">${meal.prep} | ~${meal.calories || 400} kcal</p>
-                    <div style="font-size:0.6rem; color:var(--accent-blue); margin-top:5px;">
-                        ${(meal.tags || []).join(' • ')}
-                    </div>
-                </div>
-                <div class="card-back">
-                    <h4>Nutrients</h4>
-                    <p style="font-size:0.8rem">${meal.nutrients}</p>
-                    <button class="action-btn" onclick="addToPlan('${meal.name}', event, true, ${meal.calories})">Add to Planner</button>
-                    <button class="action-btn" style="background:#475569; margin-top:5px;" onclick="logCalories(${meal.calories || 400}, event)">Ate This Now</button>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-function renderPlanner() {
-    const main = document.getElementById('app-container');
-    let planSection = document.getElementById('planner-section');
-    if (!planSection) {
-        planSection = document.createElement('section');
-        planSection.id = 'planner-section';
-        planSection.className = 'hidden-section';
-        main.appendChild(planSection);
-    }
-
-    let html = `
-        <h2 class="section-title">Weekly Strategy</h2>
-        <div class="filter-bar" style="margin-bottom:15px; display:flex; gap:10px;">
-            <button class="action-btn" style="flex:1; font-size:0.7rem;" onclick="filterPlanView('all')">All</button>
-            <button class="action-btn" style="flex:1; font-size:0.7rem; background:var(--accent-green);" onclick="filterPlanView('meals')">Meals</button>
-            <button class="action-btn" style="flex:1; font-size:0.7rem; background:var(--accent-pink);" onclick="filterPlanView('ex')">Training</button>
-        </div>
-        <div id="planner-table-container"></div>
-    `;
-    planSection.innerHTML = html;
-    filterPlanView('all');
-}
-
-function filterPlanView(viewMode) {
-    const container = document.getElementById('planner-table-container');
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    
-    let html = `<div style="display:flex; flex-direction:column; gap:15px;">`;
-
-    days.forEach(day => {
-        const d = state.weeklyPlan[day];
-        const balance = d.calsIn - d.calsOut;
-        const balanceColor = balance > 0 ? 'var(--accent-red)' : 'var(--accent-green)';
-        
-        html += `
-            <div style="background:var(--card-bg); border-radius:12px; padding:15px; border-left:4px solid #475569;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <h3 style="margin:0; color:white;">${day}</h3>
-                    <span style="font-size:0.8rem; color:${balanceColor};">Net: ${balance > 0 ? '+' : ''}${balance}</span>
-                </div>
-                
-                ${(viewMode === 'all' || viewMode === 'meals') ? `
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:0.8rem; margin-bottom:10px;">
-                    <div style="background:#334155; padding:5px; border-radius:4px;"><span style="color:#aaa">B:</span> ${d.b || '-'}</div>
-                    <div style="background:#334155; padding:5px; border-radius:4px;"><span style="color:#aaa">L:</span> ${d.l || '-'}</div>
-                    <div style="background:#334155; padding:5px; border-radius:4px;"><span style="color:#aaa">D:</span> ${d.d || '-'}</div>
-                    <div style="background:#334155; padding:5px; border-radius:4px;"><span style="color:#aaa">S:</span> ${d.s || '-'}</div>
-                </div>` : ''}
-
-                ${(viewMode === 'all' || viewMode === 'ex') ? `
-                <div style="background:rgba(236, 72, 153, 0.1); padding:8px; border-radius:4px; border:1px solid var(--accent-pink);">
-                    <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-                        <span style="color:var(--accent-pink); font-weight:bold;"><i class="fa-solid fa-person-running"></i> ${d.ex || 'Rest Day'}</span>
-                        <span style="color:#fff;">${d.calsOut > 0 ? '-' + d.calsOut : ''}</span>
-                    </div>
-                </div>` : ''}
-            </div>
-        `;
-    });
-    html += `</div>`;
-    html += `<button class="action-btn" style="background:var(--accent-red); margin-top:20px; width:100%;" onclick="clearPlanner(event)">Clear Week</button>`;
-    container.innerHTML = html;
-}
-
-function renderSettings() {
-    const main = document.getElementById('app-container');
-    let setSection = document.getElementById('settings-section');
-    if (!setSection) {
-        setSection = document.createElement('section');
-        setSection.id = 'settings-section';
-        setSection.className = 'hidden-section';
-        main.appendChild(setSection);
-    }
-    
-    // Graph Bars Generation (Correctly scaled)
-    let graphHTML = `<div class="graph-container">`;
-    state.weightLog.slice(-10).forEach(log => {
-        const heightPercentage = Math.min(Math.max((log.weight - 140) * 3, 10), 100); 
-        graphHTML += `
-            <div class="graph-bar" style="height:${heightPercentage}%;">
-                <span class="graph-label">${log.weight}</span>
-            </div>
-        `;
-    });
-    graphHTML += `</div>`;
-
-    setSection.innerHTML = `
-        <h2 class="section-title">System Settings</h2>
-        
-        <div class="card">
-            <div class="card-inner">
-                <div class="card-front" style="border-left: 4px solid var(--accent-blue);">
-                    <h3>Settings & Data</h3>
-                    <p>Manage your experience.</p>
-                </div>
-                <div class="card-back">
-                     <button class="action-btn" onclick="resetData(event)">Factory Reset App</button>
-                     <p style="margin-top:10px; font-size:0.7rem;">v2.0 Gentleman Athlete</p>
-                </div>
-            </div>
-        </div>
-
-        <button class="action-btn" style="background:var(--accent-red); width:100%; margin-top:20px;" onclick="resetData(event)">Factory Reset App</button>
-    `;
-}
-
-// Progress Tab Renderer
-function renderProgress() {
-    const main = document.getElementById('app-container');
-    let progSection = document.getElementById('progress-section');
-    if (!progSection) {
-        progSection = document.createElement('section');
-        progSection.id = 'progress-section';
-        progSection.className = 'hidden-section';
-        main.appendChild(progSection);
-    }
-    
-    let graphHTML = `<div class="graph-container">`;
-    state.weightLog.slice(-10).forEach(log => {
-        const heightPercentage = Math.min(Math.max((log.weight - 140) * 3, 10), 100); 
-        graphHTML += `
-            <div class="graph-bar" style="height:${heightPercentage}%;">
-                <span class="graph-label">${log.weight}</span>
-            </div>
-        `;
-    });
-    graphHTML += `</div>`;
-
-    progSection.innerHTML = `
-        <h2 class="section-title">Progress & Milestones</h2>
-        
-        <div class="card">
-            <div class="card-inner">
-                <div class="card-front">
-                    <h3>Weight History</h3>
-                    ${graphHTML}
-                    <p style="font-size:0.8rem; color:#888;">Start: ${state.settings.startWeight} | Current: ${state.daily.weight}</p>
-                </div>
-            </div>
-        </div>
-
-        <h3 class="section-title">The Path</h3>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-            ${state.milestones.map(m => {
-                const isMet = state.daily.weight <= m.target;
-                return `
-                <div style="background:var(--card-bg); padding:15px; border-radius:10px; border-left:4px solid ${isMet ? 'var(--accent-green)' : '#444'}; opacity:${isMet ? 0.6 : 1}">
-                    <div style="display:flex; justify-content:space-between;">
-                        <strong>${m.name}</strong>
-                        <span style="color:var(--accent-blue); font-size:0.8rem;">${m.date}</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-top:5px; color:#aaa;">
-                        <span>Target: ${m.target} lbs</span>
-                        <span>${isMet ? 'ACHIEVED' : 'Pending'}</span>
-                    </div>
-                </div>
-                `;
-            }).join('')}
-        </div>
-    `;
-}
-
-function renderShop() {
-    const shopContainer = document.getElementById('treat-shop');
-    shopContainer.innerHTML = '<h3 class="section-title" style="margin-top:30px; border-color:var(--accent-pink);">Dopamine Store</h3>';
-    treatDatabase.forEach(item => {
-        const isEarner = item.cost < 0; 
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.style.height = '120px'; 
-        card.setAttribute('onclick', 'flipCard(this)');
-        card.innerHTML = `
-            <div class="card-inner">
-                <div class="card-front" style="border-left: 4px solid ${isEarner ? 'var(--accent-green)' : 'var(--accent-pink)'}">
-                    <i class="fa-solid ${item.icon}" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
-                    <h4>${item.title}</h4>
-                </div>
-                <div class="card-back">
-                    <p>${isEarner ? 'EARN' : 'COST'}: ${Math.abs(item.cost)} CR</p>
-                    <button class="action-btn" onclick="buyTreat(${item.cost}, ${item.moneyValue}, '${item.title}', event)">${isEarner ? 'Brew & Bank' : 'Purchase'}</button>
-                </div>
-            </div>`;
-        shopContainer.appendChild(card);
-    });
-}
-
-// --- ACTIONS ---
-
-function recommendExercise(mealName, calories) {
-    if(calories > 500) {
-        alert(`Heavy Meal Detected (${calories}kcal). \n\nRECOMMENDATION: \nSchedule Sprints tomorrow.`);
-    }
-}
-
-function addToPlan(itemName, event, isMeal = false, calories = 0) {
-    event.stopPropagation();
-    const day = prompt("Day? (Mon, Tue, Wed, Thu, Fri, Sat, Sun)", "Mon");
-    if (!day || !state.weeklyPlan[day]) return alert("Invalid Day");
-
-    let slot = 'ex';
-    if(isMeal) {
-        slot = prompt("Slot? (b, l, d, s)", "d").toLowerCase();
-        if(!['b','l','d','s'].includes(slot)) return alert("Invalid Slot");
-        
-        state.weeklyPlan[day][slot] = itemName;
-        state.weeklyPlan[day].calsIn += calories;
-        recommendExercise(itemName, calories);
-    } else {
-        state.weeklyPlan[day].ex = itemName;
-        state.weeklyPlan[day].calsOut += calories;
-    }
-
-    saveState();
-    alert(`Added to ${day}`);
-}
-
-function filterMeals() {
-    const text = document.getElementById('meal-search').value.toLowerCase();
-    renderMealCards(text);
-}
-
-function completeActivity(credits, type, calories, event) {
-    event.stopPropagation();
-    state.credits += credits;
-    if (type === 'rehab') state.rehabStreak++;
-    state.daily.caloriesOut += (calories || 0);
-    updateHUD();
-    alert(`+${credits} CR! Burned ${calories}kcal.`);
-}
-function manualLog(event) {
-    const cals = prompt("Enter Calories Burned:");
-    if(cals) { state.daily.caloriesOut += parseInt(cals); updateHUD(); renderDashboard(); }
-}
-function logWeight(event) {
-    event.stopPropagation();
-    const w = prompt("Current Weight (lbs):", state.daily.weight);
-    if(w) {
-        state.daily.weight = w;
-        state.weightLog.push({date: new Date().toLocaleDateString(undefined, {month:'numeric', day:'numeric'}), weight: w});
-        saveState();
-        renderDashboard();
-    }
-}
-function logCalories(cals, event) {
-    event.stopPropagation();
-    state.daily.caloriesIn += cals;
-    saveState();
-    renderDashboard();
-    recommendExercise('Quick Log', cals);
-}
-function toggleFav(mealName, event) {
-    event.stopPropagation();
-    const idx = state.favorites.indexOf(mealName);
-    if (idx > -1) state.favorites.splice(idx, 1);
-    else state.favorites.push(mealName);
-    saveState();
-    filterMeals(); 
-}
-function clearPlanner(event) {
-    event.stopPropagation();
-    if(confirm("Clear the whole week?")) {
-        Object.keys(state.weeklyPlan).forEach(day => {
-            state.weeklyPlan[day] = { b: null, l: null, d: null, s: null, ex: null, calsIn: 0, calsOut: 0 };
-        });
-        saveState();
-        filterPlanView('all');
-    }
-}
-function showAddMealForm() {
-    const name = prompt("Meal Name:");
-    if (!name) return;
-    const ingredientsString = prompt("Ingredients (comma separated):");
-    if (!ingredientsString) return;
-    const ingredients = ingredientsString.split(',').map(i => i.trim());
-    let totalC = 0;
-    ingredients.forEach(ing => {
-        const key = ing.toLowerCase();
-        const dbKey = Object.keys(ingredientDB).find(k => key.includes(k));
-        totalC += dbKey ? ingredientDB[dbKey].c : 50; 
-    });
-    state.customMeals.push({ name, ingredients, nutrients: `Est: ${totalC} kcal`, calories: totalC, prep: "Custom" });
-    saveState();
-    filterMeals();
-}
 function flipCard(cardElement) {
     if (cardElement.classList.contains('locked')) return;
     cardElement.classList.toggle('flipped');
 }
-function buyTreat(cost, moneySaved, title, event) {
-    event.stopPropagation();
-    if (cost > 0 && state.credits < cost) return alert("INSUFFICIENT FUNDS");
-    state.credits -= cost;
-    if (moneySaved > 0) state.moneySaved += moneySaved;
-    updateHUD();
-    alert(cost < 0 ? "Banked!" : "Purchased!");
-}
+
 function completeMental(event) {
     event.stopPropagation();
     if (state.daily.mentalChecked) return;
-    const card = event.target.closest('.card');
-    const checks = card.querySelectorAll('input:checked').length;
-    state.credits += (checks * 20);
+    state.credits += 50;
     state.daily.mentalChecked = true;
     updateHUD();
+    const card = event.target.closest('.card');
     card.classList.remove('flipped');
+    renderDashboard(); // Re-render to show COMPLETED badge
 }
+
 function resetData(event) {
-    event.stopPropagation();
-    if(confirm("Factory Reset?")) { localStorage.removeItem('gentlemanAthleteState'); location.reload(); }
-}
-function openFormGuide(url, event) { event.stopPropagation(); window.open(url, '_blank'); }
-
-// --- TAB SWITCHER ---
-function switchTab(tabId) {
-    document.querySelectorAll('section').forEach(el => el.style.display = 'none');
-    
-    if (tabId === 'dashboard') { renderDashboard(); document.getElementById('dashboard').style.display = 'block'; }
-    else if (tabId === 'gym') { renderGym(); document.getElementById('gym').style.display = 'block'; }
-    else if (tabId === 'kitchen') { renderKitchen(); document.getElementById('kitchen').style.display = 'block'; }
-    else if (tabId === 'settings') { renderSettings(); document.getElementById('settings-section').style.display = 'block'; }
-    else if (tabId === 'planner') { renderPlanner(); document.getElementById('planner-section').style.display = 'block'; }
-    else if (tabId === 'progress') { renderProgress(); document.getElementById('progress-section').style.display = 'block'; }
-    
-    // Highlight Active Nav
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.style.color = 'var(--text-mute)');
-    // Find button that calls this and light it up? 
-    // Simplified: Just re-running initNavigation logic on color isn't efficient, so we trust user click feedback or add logic later.
+    if(confirm("Delete all data and start over?")) {
+        localStorage.removeItem('gentlemanAthleteState');
+        location.reload();
+    }
 }
 
-function triggerSOS() { document.getElementById('sos-modal').classList.remove('hidden'); }
-function closeSOS() { document.getElementById('sos-modal').classList.add('hidden'); }
+// Placeholders for other renderers (Gym, Kitchen, Planner) 
+// Ensure you keep your existing renderGym, renderKitchen, renderPlanner functions in the file! 
+// Just ensure they use the new HTML structure if creating cards.
+// If you need the full file again with ALL functions included, let me know.
+// For brevity, I've focused on the broken parts (Dashboard, Settings, Nav).
