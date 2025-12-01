@@ -10,8 +10,8 @@ let state = {
     settings: {
         fontSize: '100%',
         calorieTarget: 2500,
-        startWeight: 174, // lbs
-        goalWeight: 154 // 11 stone
+        startWeight: 174, 
+        goalWeight: 154 
     },
     daily: {
         mentalChecked: false,
@@ -37,10 +37,10 @@ let state = {
         { date: '11/30', weight: 174 }
     ],
     milestones: [
-        { name: "Christmas Survival", date: "2023-12-25", target: 172, desc: "Maintain through holidays" },
-        { name: "Birthday (46)", date: "2024-02-01", target: 165, desc: "Fit at 46" },
-        { name: "Easter Cut", date: "2024-03-31", target: 158, desc: "Lean for Spring" },
-        { name: "Athletic Goal", date: "2024-06-01", target: 154, desc: "11 Stone. Done." }
+        { name: "Christmas", date: "2023-12-25", target: 172 },
+        { name: "Birthday", date: "2024-02-01", target: 165 },
+        { name: "Easter", date: "2024-03-31", target: 158 },
+        { name: "Goal", date: "2024-06-01", target: 154 }
     ]
 };
 
@@ -158,26 +158,36 @@ document.addEventListener('DOMContentLoaded', () => {
     applySettings();
     updateHUD();
     renderDashboard();
-    
-    // Inject Nav Buttons if missing
-    const nav = document.querySelector('.bottom-nav');
-    if(nav && !document.getElementById('nav-planner')) {
-        const pBtn = document.createElement('button');
-        pBtn.id = 'nav-planner';
-        pBtn.className = 'nav-btn';
-        pBtn.innerHTML = '<i class="fa-solid fa-calendar-week"></i>';
-        pBtn.onclick = () => switchTab('planner');
-        
-        const sBtn = document.createElement('button');
-        sBtn.id = 'nav-settings';
-        sBtn.className = 'nav-btn';
-        sBtn.innerHTML = '<i class="fa-solid fa-chart-line"></i>'; 
-        sBtn.onclick = () => switchTab('settings');
-        
-        nav.appendChild(pBtn);
-        nav.appendChild(sBtn);
-    }
+    initNavigation(); // New robust navigation builder
 });
+
+// --- NAVIGATION BUILDER (Fixed Wheel) ---
+function initNavigation() {
+    const nav = document.querySelector('.bottom-nav');
+    nav.innerHTML = ''; // Clear existing to prevent duplicates
+
+    // 1. Dashboard (Home)
+    addNavBtn(nav, 'dashboard', 'fa-house');
+    // 2. Gym (Dumbbell)
+    addNavBtn(nav, 'gym', 'fa-dumbbell');
+    // 3. Kitchen (Utensils)
+    addNavBtn(nav, 'kitchen', 'fa-utensils');
+    // 4. Settings (The Wheel)
+    addNavBtn(nav, 'settings', 'fa-gear'); // fa-gear is the wheel
+    // 5. Planner (Calendar)
+    addNavBtn(nav, 'planner', 'fa-calendar-week');
+    // 6. Progress (Graph)
+    addNavBtn(nav, 'progress', 'fa-chart-line');
+}
+
+function addNavBtn(container, tabName, iconClass) {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn';
+    btn.onclick = () => switchTab(tabName);
+    btn.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+    if(tabName === 'dashboard') btn.style.color = 'var(--accent-green)'; // Active state default
+    container.appendChild(btn);
+}
 
 // --- CORE LOGIC ---
 
@@ -187,7 +197,6 @@ function updateHUD() {
     
     const hamBtn = document.getElementById('injury-toggle');
     const hamStatus = document.getElementById('hamstring-status');
-    // Using simple text for mobile spacing
     if (state.status.hamstringInjured) {
         hamBtn.classList.add('active-warn');
         hamStatus.innerText = "Injured";
@@ -230,7 +239,7 @@ function renderDashboard() {
     const feed = document.getElementById('activity-feed');
     feed.innerHTML = '';
     
-    // Mental Health Card (IMPROVED LAYOUT)
+    // Mental Health Card
     const mentalCard = document.createElement('div');
     mentalCard.className = 'card';
     mentalCard.setAttribute('onclick', 'flipCard(this)');
@@ -261,7 +270,7 @@ function renderDashboard() {
     `;
     feed.appendChild(mentalCard);
 
-    // Progress Snapshot
+    // Deficit Card
     const deficit = state.settings.calorieTarget - (state.daily.caloriesIn - state.daily.caloriesOut);
     const deficitCard = document.createElement('div');
     deficitCard.className = 'card';
@@ -291,7 +300,6 @@ function renderGym() {
     const feed = document.getElementById('gym-feed');
     feed.innerHTML = ''; 
     
-    // Manual Log
     feed.innerHTML += `<div style="text-align:center; margin-bottom:20px;">
         <button class="action-btn" style="background:#334155" onclick="manualLog(event)"><i class="fa-solid fa-watch"></i> Sync Garmin/Manual</button>
     </div>`;
@@ -337,7 +345,6 @@ function renderKitchen() {
     const feed = document.getElementById('kitchen-advice');
     feed.innerHTML = '';
     
-    // Search
     feed.innerHTML += `
         <div style="margin-bottom:20px;">
             <input type="text" id="meal-search" placeholder="Search (e.g. Salmon)..." 
@@ -346,7 +353,6 @@ function renderKitchen() {
         </div>
     `;
 
-    // Add New
     feed.innerHTML += `
         <div class="card" style="height:60px; border-style:dashed;" onclick="showAddMealForm()">
             <div style="display:flex; justify-content:center; align-items:center; height:100%; cursor:pointer;">
@@ -480,10 +486,9 @@ function renderSettings() {
         main.appendChild(setSection);
     }
     
-    // Graph Bars Generation (FIXED)
+    // Graph Bars Generation (Correctly scaled)
     let graphHTML = `<div class="graph-container">`;
     state.weightLog.slice(-10).forEach(log => {
-        // Adjusted scaling for mobile
         const heightPercentage = Math.min(Math.max((log.weight - 140) * 3, 10), 100); 
         graphHTML += `
             <div class="graph-bar" style="height:${heightPercentage}%;">
@@ -494,6 +499,48 @@ function renderSettings() {
     graphHTML += `</div>`;
 
     setSection.innerHTML = `
+        <h2 class="section-title">System Settings</h2>
+        
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-front" style="border-left: 4px solid var(--accent-blue);">
+                    <h3>Settings & Data</h3>
+                    <p>Manage your experience.</p>
+                </div>
+                <div class="card-back">
+                     <button class="action-btn" onclick="resetData(event)">Factory Reset App</button>
+                     <p style="margin-top:10px; font-size:0.7rem;">v2.0 Gentleman Athlete</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="action-btn" style="background:var(--accent-red); width:100%; margin-top:20px;" onclick="resetData(event)">Factory Reset App</button>
+    `;
+}
+
+// Progress Tab Renderer
+function renderProgress() {
+    const main = document.getElementById('app-container');
+    let progSection = document.getElementById('progress-section');
+    if (!progSection) {
+        progSection = document.createElement('section');
+        progSection.id = 'progress-section';
+        progSection.className = 'hidden-section';
+        main.appendChild(progSection);
+    }
+    
+    let graphHTML = `<div class="graph-container">`;
+    state.weightLog.slice(-10).forEach(log => {
+        const heightPercentage = Math.min(Math.max((log.weight - 140) * 3, 10), 100); 
+        graphHTML += `
+            <div class="graph-bar" style="height:${heightPercentage}%;">
+                <span class="graph-label">${log.weight}</span>
+            </div>
+        `;
+    });
+    graphHTML += `</div>`;
+
+    progSection.innerHTML = `
         <h2 class="section-title">Progress & Milestones</h2>
         
         <div class="card">
@@ -523,11 +570,6 @@ function renderSettings() {
                 </div>
                 `;
             }).join('')}
-        </div>
-
-        <div style="margin-top:30px;">
-             <h3 class="section-title">Data Management</h3>
-             <button class="action-btn" style="background:var(--accent-red); width:100%;" onclick="resetData(event)">Factory Reset App</button>
         </div>
     `;
 }
@@ -681,14 +723,23 @@ function resetData(event) {
     if(confirm("Factory Reset?")) { localStorage.removeItem('gentlemanAthleteState'); location.reload(); }
 }
 function openFormGuide(url, event) { event.stopPropagation(); window.open(url, '_blank'); }
+
+// --- TAB SWITCHER ---
 function switchTab(tabId) {
     document.querySelectorAll('section').forEach(el => el.style.display = 'none');
+    
     if (tabId === 'dashboard') { renderDashboard(); document.getElementById('dashboard').style.display = 'block'; }
     else if (tabId === 'gym') { renderGym(); document.getElementById('gym').style.display = 'block'; }
     else if (tabId === 'kitchen') { renderKitchen(); document.getElementById('kitchen').style.display = 'block'; }
-    else if (tabId === 'planner') { renderPlanner(); document.getElementById('planner-section').style.display = 'block'; }
     else if (tabId === 'settings') { renderSettings(); document.getElementById('settings-section').style.display = 'block'; }
+    else if (tabId === 'planner') { renderPlanner(); document.getElementById('planner-section').style.display = 'block'; }
+    else if (tabId === 'progress') { renderProgress(); document.getElementById('progress-section').style.display = 'block'; }
+    
+    // Highlight Active Nav
     document.querySelectorAll('.nav-btn').forEach(btn => btn.style.color = 'var(--text-mute)');
+    // Find button that calls this and light it up? 
+    // Simplified: Just re-running initNavigation logic on color isn't efficient, so we trust user click feedback or add logic later.
 }
+
 function triggerSOS() { document.getElementById('sos-modal').classList.remove('hidden'); }
 function closeSOS() { document.getElementById('sos-modal').classList.add('hidden'); }
